@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card } from "@/components/ui/card"
@@ -17,11 +16,11 @@ import { exportPreviewToPDF, exportDataToDocx } from "@/lib/export"
 
 // Template configs: layout, typography and badge style
 const TEMPLATES = [
-  { id: "talentum", name: "Talentum", accent: "from-emerald-600 to-teal-600", layout: "one", headerClass: "font-sans", badgeClass: "rounded border px-2 py-1 text-xs" },
-  { id: "minimal", name: "Minimal (2 col)", accent: "from-emerald-500 to-emerald-700", layout: "two", headerClass: "font-sans tracking-tight", badgeClass: "rounded-full border px-3 py-1 text-xs" },
-  { id: "elegant", name: "Elegant (serif)", accent: "from-teal-500 to-emerald-700", layout: "one", headerClass: "font-serif", badgeClass: "rounded px-2 py-1 text-xs" },
-  { id: "business", name: "Business (2 col)", accent: "from-emerald-600 to-emerald-800", layout: "two", headerClass: "font-sans", badgeClass: "rounded bg-emerald-50 text-emerald-800 px-2 py-1 text-[11px]" },
-  { id: "modern", name: "Modern", accent: "from-emerald-400 to-teal-600", layout: "one", headerClass: "font-sans", badgeClass: "rounded-md border px-2 py-1 text-[11px]" },
+  { id: "talentum", name: "Talentum", accent: "from-black to-neutral-700", layout: "one", headerClass: "font-sans", badgeClass: "rounded border px-2 py-1 text-xs" },
+  { id: "minimal", name: "Minimal (2 col)", accent: "from-neutral-900 to-neutral-700", layout: "two", headerClass: "font-sans tracking-tight", badgeClass: "rounded-full border px-3 py-1 text-xs" },
+  { id: "elegant", name: "Elegant (serif)", accent: "from-gray-900 to-neutral-700", layout: "one", headerClass: "font-serif", badgeClass: "rounded px-2 py-1 text-xs" },
+  { id: "business", name: "Business (2 col)", accent: "from-black to-neutral-800", layout: "two", headerClass: "font-sans", badgeClass: "rounded bg-neutral-100 text-neutral-900 px-2 py-1 text-[11px]" },
+  { id: "modern", name: "Modern", accent: "from-neutral-800 to-black", layout: "one", headerClass: "font-sans", badgeClass: "rounded-md border px-2 py-1 text-[11px]" },
 ] as const
 
 type ExperienceItem = { role: string; company: string; period: string; description: string; bullets: string[] }
@@ -89,7 +88,7 @@ export default function CreateResumePage() {
         throw new Error(err?.error || `Falha na IA (${res.status})`)
       }
       const json = await res.json()
-      const text = extractTextFromHF(json)
+      const text = extractTextFromAI(json)
       if (field === "summary") {
         setData(prev => ({ ...prev, summary: text }))
       } else if (field === "experience") {
@@ -119,14 +118,18 @@ export default function CreateResumePage() {
     }
   }
 
-  function extractTextFromHF(resp: unknown): string {
-    // Hugging Face text generation often returns an array of { generated_text }
-    if (Array.isArray(resp) && (resp as Array<{ generated_text?: string }>)[0]?.generated_text) {
-      return String((resp as Array<{ generated_text?: string }>)[0]?.generated_text)
-    }
+  function extractTextFromAI(resp: unknown): string {
+    // Gemini format: { candidates: [ { content: { parts: [{ text: "..." }] } } ] }
+    try {
+      const r = resp as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
+      const cand = r?.candidates?.[0]
+      const parts = cand?.content?.parts
+      const text = Array.isArray(parts) ? parts.map((p) => p?.text).filter(Boolean).join("\n").trim() : ""
+      if (text) return text
+    } catch {}
+    // HF fallback: array of { generated_text }
     if (Array.isArray(resp) && resp[0]?.generated_text) return String(resp[0].generated_text)
     if (typeof resp === "string") return resp
-    // Fallback
     return "Profissional com experiência, focado em resultados e melhoria contínua."
   }
 
@@ -233,6 +236,144 @@ export default function CreateResumePage() {
                   </Button>
                 </div>
               </div>
+              <TabsContent value="perfil" className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="name">Nome</Label>
+                    <Input id="name" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="title">Título</Label>
+                    <Input id="title" value={data.title} onChange={e => setData({ ...data, title: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="area">Área</Label>
+                    <Input id="area" value={data.area} onChange={e => setData({ ...data, area: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="roleTarget">Função alvo</Label>
+                    <Input id="roleTarget" value={data.roleTarget} onChange={e => setData({ ...data, roleTarget: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="location">Local</Label>
+                    <Input id="location" value={data.location} onChange={e => setData({ ...data, location: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Telefone</Label>
+                    <Input id="phone" value={data.phone} onChange={e => setData({ ...data, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="website">Website</Label>
+                    <Input id="website" value={data.website} onChange={e => setData({ ...data, website: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="summary">Resumo</Label>
+                  <Textarea id="summary" rows={4} value={data.summary} onChange={e => setData({ ...data, summary: e.target.value })} />
+                </div>
+                {aiError && <p className="text-sm text-red-600">{aiError}</p>}
+              </TabsContent>
+
+              <TabsContent value="experiencia" className="space-y-4">
+                {data.experience.map((ex, i) => (
+                  <div key={i} className="rounded-md border p-3 space-y-2">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label> Cargo</Label>
+                        <Input value={ex.role} onChange={e => updateExperience(i, { role: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label> Empresa</Label>
+                        <Input value={ex.company} onChange={e => updateExperience(i, { company: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label> Período</Label>
+                        <Input value={ex.period} onChange={e => updateExperience(i, { period: e.target.value })} />
+                      </div>
+                      <div className="flex items-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleAI("experience", { index: i })} disabled={loadingAI && loadingAIKey!==`exp-${i}`}>
+                          <Wand2 className="mr-2 h-4 w-4" /> Bullets IA
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => removeExperience(i)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <Label> Descrição</Label>
+                      <Textarea value={ex.description} onChange={e => updateExperience(i, { description: e.target.value })} />
+                    </div>
+                    {ex.bullets?.length ? (
+                      <ul className="list-disc pl-5 text-sm text-neutral-800">
+                        {ex.bullets.map((b, bi) => <li key={bi}>{b}</li>)}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addExperience}><Plus className="mr-2 h-4 w-4" />Adicionar experiência</Button>
+              </TabsContent>
+
+              <TabsContent value="formacao" className="space-y-4">
+                {data.education.map((ed, i) => (
+                  <div key={i} className="rounded-md border p-3 space-y-2">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label> Grau</Label>
+                        <Input value={ed.degree} onChange={e => updateEducation(i, { degree: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label> Instituição</Label>
+                        <Input value={ed.institution} onChange={e => updateEducation(i, { institution: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label> Período</Label>
+                        <Input value={ed.period} onChange={e => updateEducation(i, { period: e.target.value })} />
+                      </div>
+                      <div className="flex items-end">
+                        <Button variant="ghost" size="sm" onClick={() => removeEducation(i)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <Label> Descrição</Label>
+                      <Textarea value={ed.description} onChange={e => updateEducation(i, { description: e.target.value })} />
+                    </div>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addEducation}><Plus className="mr-2 h-4 w-4" />Adicionar formação</Button>
+              </TabsContent>
+
+              <TabsContent value="habilidades" className="space-y-3">
+                <div className="flex gap-2">
+                  <Input placeholder="Adicionar habilidade" value={newSkill} onChange={e => setNewSkill(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addSkill() }} />
+                  <Button onClick={addSkill} variant="outline">Adicionar</Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {data.skills.map((s, i) => (
+                    <Badge key={i} variant="secondary" className="flex items-center gap-2">
+                      {s}
+                      <button onClick={() => removeSkill(i)} className="text-xs text-neutral-600 hover:text-neutral-900">✕</button>
+                    </Badge>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="template" className="space-y-3">
+                <Label>Modelo</Label>
+                <Select value={data.template} onValueChange={(v) => setData({ ...data, template: v })}>
+                  <SelectTrigger className="w-full sm:w-72"><SelectValue placeholder="Escolha um template" /></SelectTrigger>
+                  <SelectContent>
+                    {TEMPLATES.map(t => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TabsContent>
             </Tabs>
           </Card>
           

@@ -9,36 +9,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing prompt" }, { status: 400 })
     }
 
-    if (!process.env.HUGGINGFACE_API_KEY) {
-      return NextResponse.json({ error: "HUGGINGFACE_API_KEY not configured" }, { status: 500 })
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 })
     }
 
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 180,
-            temperature: 0.7,
-            return_full_text: false,
+    // Google Generative Language API (Gemini) - Text generation
+    // Model options: gemini-1.5-flash-latest, gemini-1.5-pro-latest, gemini-1.0-pro
+    const model = process.env.GEMINI_MODEL || "gemini-1.5-flash-latest"
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
           },
-          options: { wait_for_model: true },
-        }),
-      }
-    )
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 280,
+        },
+      }),
+    })
 
     const data = await response.json()
     if (!response.ok) {
-      return NextResponse.json({ error: data?.error || "HF request failed" }, { status: response.status })
+      return NextResponse.json({ error: data?.error?.message || "Gemini request failed" }, { status: response.status })
     }
     return NextResponse.json(data, { status: 200 })
   } catch {
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 })
   }
 }
+

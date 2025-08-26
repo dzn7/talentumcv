@@ -120,3 +120,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Prevent horizontal scroll site-wide (especially on mobile) */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Ensure media doesn't overflow viewport width */
+img, svg, video, canvas, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Guard common containers against accidental overflow */
+.container, main, header, footer, section, article, aside, nav, div {
+  overflow-x: clip;
+}

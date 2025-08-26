@@ -37,20 +37,16 @@ export function Hero() {
                 Currículo inteligente com IA
               </span>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                Seu currículo pronto em <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">minutos</span>
+                Seu currículo pronto em <span className="bg-gradient-to-r from-black to-neutral-700 bg-clip-text text-transparent">minutos</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-[54ch] leading-relaxed">
                 Estilizado, compatível com ATS e pronto para conquistar seu próximo emprego.
               </p>
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <Link href="/criar">
-                  <Button size="lg" className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <Button size="lg" className="bg-gradient-to-r from-black to-neutral-800 text-white hover:from-neutral-900 hover:to-black shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Começar Agora
                   </Button>
-                </Link>
-                <Link href="#como-funciona" className="text-sm text-foreground/70 hover:text-foreground transition-colors flex items-center gap-1 group">
-                  Ver como funciona 
-                  <span className="transition-transform group-hover:translate-x-1">→</span>
                 </Link>
               </div>
             </motion.div>
@@ -116,12 +112,12 @@ function ResumeIllustration() {
 
       {/* floating accents */}
       <motion.div
-        className="absolute -top-6 -right-6 h-16 w-16 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 opacity-50 blur"
+        className="absolute -top-6 -right-6 h-16 w-16 rounded-lg bg-gradient-to-br from-black to-neutral-700 opacity-50 blur"
         animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
         transition={{ duration: 6, repeat: Infinity }}
       />
       <motion.div
-        className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 opacity-40 blur"
+        className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-gradient-to-br from-neutral-900 to-black opacity-40 blur"
         animate={{ y: [0, 12, 0], x: [0, -6, 0] }}
         transition={{ duration: 7, repeat: Infinity }}
       />
