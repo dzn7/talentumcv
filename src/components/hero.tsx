@@ -4,21 +4,25 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { FileText } from "lucide-react"
-// Minimal hero without heavy decorative blobs
+// Hero with elegant green waves background
 
 export function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden">
-      {/* Minimal, Lume-like neutral background with subtle dots */}
+      {/* Waves background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-background" />
-        {/* Subtle top gradient */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(16,185,129,0.06),transparent_35%)]" />
-        {/* Softer dots */}
-        <div className="absolute inset-0 opacity-[0.22]" style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(0,0,0,0.055) 1px, transparent 0)",
-          backgroundSize: "22px 22px"
-        }} />
+        <svg className="absolute inset-x-0 top-0 h-[360px] w-full" viewBox="0 0 1440 360" preserveAspectRatio="none" aria-hidden>
+          <defs>
+            <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#10B981" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#059669" stopOpacity="0.18" />
+            </linearGradient>
+          </defs>
+          <path d="M0 120 Q 240 60 480 120 T 960 120 T 1440 120 V 0 H 0 Z" fill="url(#waveGrad)" />
+          <path d="M0 200 Q 240 140 480 200 T 960 200 T 1440 200 V 120 H 0 Z" fill="url(#waveGrad)" opacity="0.7" />
+          <path d="M0 260 Q 240 210 480 260 T 960 260 T 1440 260 V 200 H 0 Z" fill="url(#waveGrad)" opacity="0.45" />
+        </svg>
         <div className="absolute top-0 left-0 right-0 mx-auto h-px w-[92%] bg-foreground/10" />
       </div>
 
@@ -37,14 +41,14 @@ export function Hero() {
                 Currículo inteligente com IA
               </span>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                Seu currículo pronto em <span className="bg-gradient-to-r from-black to-neutral-700 bg-clip-text text-transparent">minutos</span>
+                Seu currículo pronto em <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">minutos</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-[54ch] leading-relaxed">
                 Estilizado, compatível com ATS e pronto para conquistar seu próximo emprego.
               </p>
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <Link href="/criar">
-                  <Button size="lg" className="bg-gradient-to-r from-black to-neutral-800 text-white hover:from-neutral-900 hover:to-black shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <Button size="lg" className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                     Começar Agora
                   </Button>
                 </Link>
@@ -52,7 +56,8 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* Animated illustration */}
+          {/* Animated illustration */
+          /* simplified accents; waves already provide context */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -110,17 +115,7 @@ function ResumeIllustration() {
         </motion.div>
       </motion.div>
 
-      {/* floating accents */}
-      <motion.div
-        className="absolute -top-6 -right-6 h-16 w-16 rounded-lg bg-gradient-to-br from-black to-neutral-700 opacity-50 blur"
-        animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute -bottom-8 -left-8 h-20 w-20 rounded-full bg-gradient-to-br from-neutral-900 to-black opacity-40 blur"
-        animate={{ y: [0, 12, 0], x: [0, -6, 0] }}
-        transition={{ duration: 7, repeat: Infinity }}
-      />
+      {/* no floating blobs; waves handle the atmosphere */}
     </div>
   )
 }
